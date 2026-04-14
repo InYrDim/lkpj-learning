@@ -7,6 +7,9 @@ on:
 
 jobs:
   build-tauri:
+    permissions:
+      contents: write
+      
     strategy:
       fail-fast: false
       matrix:
@@ -21,7 +24,20 @@ jobs:
         with:
           node-version: 20
 
+      - name: install frontend dependencies
+        run: npm install
+
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
 
-      
+      - name: Build and Package Tauri App
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: app-v__VERSION__ 
+          releaseName: "LKPJ C++ Interactive v__VERSION__"
+          releaseBody: "Ini adalah rilis installer .exe hasil kompilasi GitHub Actions."
+          releaseDraft: false
+          prerelease: false
+          args: --target x86_64-pc-windows-msvc
